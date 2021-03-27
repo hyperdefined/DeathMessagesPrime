@@ -15,11 +15,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class DeathMessageBroadcastEvent extends Event implements Cancellable {
     private boolean cancelled;
     private static final HandlerList handlers = new HandlerList();
-    private TextComponent message;
-    private Player player;
-    private World world;
-    private long id;
-    private boolean isPvP;
+    private final TextComponent message;
+    private final Player player;
+    private final World world;
+    private final long id;
+    private final boolean isPvP;
     
     public DeathMessageBroadcastEvent(long id, TextComponent message, Player player, World world, boolean isPvP) {
         this.id = id;

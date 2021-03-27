@@ -16,20 +16,20 @@ import net.md_5.bungee.api.chat.TextComponent;
  */
 public class DeathMessagePreparedEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private TextComponent message;
-    private Player player;
-    private long id;
-    private boolean isPvP;
-    private Set<UUID> alwaysShow;
-    private Set<UUID> alwaysHide;
+    private final TextComponent message;
+    private final Player player;
+    private final long id;
+    private final boolean isPvP;
+    private final Set<UUID> alwaysShow;
+    private final Set<UUID> alwaysHide;
     
     public DeathMessagePreparedEvent(long id, TextComponent message, Player player, boolean isPvP) {
         this.id = id;
         this.message = message;
         this.player = player;
         this.isPvP = isPvP;
-        this.alwaysShow = new HashSet<UUID>();
-        this.alwaysHide = new HashSet<UUID>();
+        this.alwaysShow = new HashSet<>();
+        this.alwaysHide = new HashSet<>();
     }
 
     @Override

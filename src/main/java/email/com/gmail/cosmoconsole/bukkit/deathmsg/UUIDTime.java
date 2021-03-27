@@ -3,8 +3,8 @@ package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 import java.util.UUID;
 
 public class UUIDTime {
-    private UUID uuid;
-    private long time;
+    private final UUID uuid;
+    private final long time;
     
     public UUIDTime(UUID u, long t) {
         uuid = u;

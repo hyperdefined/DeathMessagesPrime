@@ -20,11 +20,11 @@ import org.bukkit.inventory.ItemStack;
 public class DeathMessageCustomEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private String tag;
-    private Player player;
+    private final Player player;
     private String killer;
     private String killer2;
     private ItemStack weapon;
-    private long id;
+    private final long id;
     private boolean pvp;
     private boolean cancelled;
     
@@ -139,7 +139,7 @@ public class DeathMessageCustomEvent extends Event implements Cancellable {
     /**
      * Modifies the killer display name for the death message (used for %killer2%).
      * 
-     * @param killer The new killer display name to set.
+     * @param killer2 The new killer display name to set.
      */
     public void setKiller2(String killer2) {
         this.killer2 = (killer2 == null ? "" : killer2);

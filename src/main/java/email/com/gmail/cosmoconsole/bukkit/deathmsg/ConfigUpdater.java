@@ -1,14 +1,8 @@
 package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.configuration.file.FileConfiguration;
-
 public class ConfigUpdater {
     
-    public static boolean updateConfig(File configFile, int targetVersion) {
+    public static boolean updateConfig() {
         return false;
     }
         /*

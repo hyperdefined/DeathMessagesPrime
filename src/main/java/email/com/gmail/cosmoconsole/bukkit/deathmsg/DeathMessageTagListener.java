@@ -16,5 +16,5 @@ public interface DeathMessageTagListener {
      * @param killer The entity that acted as the killer. Usually a player, a mob or null (if no entity related to death)
      * @return The text component to replace the tag
      */
-    public TextComponent formatTag(String tag, Player died, EntityDamageEvent.DamageCause cause, Entity killer);
+    TextComponent formatTag(String tag, Player died, EntityDamageEvent.DamageCause cause, Entity killer);
 }

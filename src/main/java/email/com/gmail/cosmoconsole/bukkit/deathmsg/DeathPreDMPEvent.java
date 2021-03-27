@@ -12,10 +12,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
  */
 public class DeathPreDMPEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private double hp;
-    private Entity damager;
-    private Player player;
-    private EntityDamageEvent.DamageCause cause;
+    private final double hp;
+    private final Entity damager;
+    private final Player player;
+    private final EntityDamageEvent.DamageCause cause;
     
     public DeathPreDMPEvent(Player player, Entity damager, EntityDamageEvent.DamageCause cause, double hp) {
         this.player = player;

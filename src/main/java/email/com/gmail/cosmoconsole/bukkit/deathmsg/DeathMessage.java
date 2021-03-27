@@ -13,31 +13,31 @@ public class DeathMessage
     /**
      * The message as a TextComponent, may be overwritten by DeathListener.dmc
      */
-    public TextComponent d;
+    public final TextComponent d;
     /**
      * The world in which the death occurred
      */
-    public World w;
+    public final World w;
     /**
      * The died player
      */
-    public Player v;
+    public final Player v;
     /**
      * Whether the death was caused by another player (as a direct or indirect kill)
      */
-    public boolean pvp;
+    public final boolean pvp;
     /**
      * Whether the death was caused by another player (as a direct or indirect kill)
      */
-    public String vd;
+    public final String vd;
     /**
      * Length of the formatted prefix in this message.
      */
-    public int prel;
+    public final int prel;
     /**
      * Length of the formatted prefix in this message.
      */
-    public int sufl;
+    public final int sufl;
     
     public DeathMessage(final TextComponent D, final Player V, final World W, final boolean PVP, final String VD, final int prel, final int sufl) {
         this.d = D;

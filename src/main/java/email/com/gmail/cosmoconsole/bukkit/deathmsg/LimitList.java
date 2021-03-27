@@ -6,8 +6,8 @@ import java.util.Deque;
 // a List the size of which is limited
 public class LimitList<T> {
 
-    private int bound;
-    private Deque<T> list;
+    private final int bound;
+    private final Deque<T> list;
     
     public LimitList(int capacity) {
         if (capacity <= 0) {
@@ -19,9 +19,7 @@ public class LimitList<T> {
     }
 
     public synchronized T bringToTop(T old) {
-        if (list.contains(old)) {
-            list.remove(old);
-        }
+        list.remove(old);
         list.addLast(old);
         if (list.size() >= bound) {
             return list.removeFirst();

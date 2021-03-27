@@ -8,8 +8,8 @@ import org.bukkit.Bukkit;
 
 public class ReflectionUtil {
 
-    static Map<String, Class<?>> nmsCache = new HashMap<>();
-    static Map<String, Class<?>> obcCache = new HashMap<>();
+    static final Map<String, Class<?>> nmsCache = new HashMap<>();
+    static final Map<String, Class<?>> obcCache = new HashMap<>();
     
     private static String getNMSVersion() {
         return Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];

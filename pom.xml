@@ -8,7 +8,7 @@
     <version>1.16.6</version>
     <packaging>jar</packaging>
 
-    <name>CompassTracker</name>
+    <name>DeathMessagesPrime</name>
 
     <properties>
         <java.version>1.8</java.version>

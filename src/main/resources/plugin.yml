@@ -1,6 +1,6 @@
 name: DeathMessagesPrime
 main: email.com.gmail.cosmoconsole.bukkit.deathmsg.DeathMessagesPrime
-version: 1.16.6
+version: ${project.version}
 api-version: 1.13
 description: Very customizable death message interface.
 author: CosmoConsole

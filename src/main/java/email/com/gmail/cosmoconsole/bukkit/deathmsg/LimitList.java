@@ -8,12 +8,12 @@ public class LimitList<T> {
 
     private final int bound;
     private final Deque<T> list;
-    
+
     public LimitList(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("capacity must be positive");
         }
-        
+
         bound = capacity;
         list = new ArrayDeque<>(capacity + 1);
     }
@@ -27,5 +27,4 @@ public class LimitList<T> {
             return null;
         }
     }
-    
 }

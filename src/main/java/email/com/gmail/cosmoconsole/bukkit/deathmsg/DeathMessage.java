@@ -1,15 +1,13 @@
 package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 
 import net.md_5.bungee.api.chat.TextComponent;
-
-import org.bukkit.*;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 /**
  * A queued death message
  */
-public class DeathMessage
-{
+public class DeathMessage {
     /**
      * The message as a TextComponent, may be overwritten by DeathListener.dmc
      */
@@ -38,8 +36,15 @@ public class DeathMessage
      * Length of the formatted prefix in this message.
      */
     public final int sufl;
-    
-    public DeathMessage(final TextComponent D, final Player V, final World W, final boolean PVP, final String VD, final int prel, final int sufl) {
+
+    public DeathMessage(
+            final TextComponent D,
+            final Player V,
+            final World W,
+            final boolean PVP,
+            final String VD,
+            final int prel,
+            final int sufl) {
         this.d = D;
         this.w = W;
         this.v = V;

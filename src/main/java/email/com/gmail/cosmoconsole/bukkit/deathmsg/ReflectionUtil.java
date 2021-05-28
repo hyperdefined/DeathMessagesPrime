@@ -1,20 +1,20 @@
 package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 
+import org.bukkit.Bukkit;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bukkit.Bukkit;
 
 public class ReflectionUtil {
 
     static final Map<String, Class<?>> nmsCache = new HashMap<>();
     static final Map<String, Class<?>> obcCache = new HashMap<>();
-    
+
     private static String getNMSVersion() {
         return Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
     }
-    
+
     private static String getOBCVersion() {
         return getNMSVersion();
     }
@@ -35,8 +35,8 @@ public class ReflectionUtil {
         return clazz.getMethod(name);
     }
 
-    public static Method getMethod(Class<?> clazz, String name, Class<?> parClazz) throws NoSuchMethodException, SecurityException {
+    public static Method getMethod(Class<?> clazz, String name, Class<?> parClazz)
+            throws NoSuchMethodException, SecurityException {
         return clazz.getMethod(name, parClazz);
     }
-
 }

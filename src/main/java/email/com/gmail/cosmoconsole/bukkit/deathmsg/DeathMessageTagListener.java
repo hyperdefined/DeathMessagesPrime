@@ -1,15 +1,14 @@
 package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-import net.md_5.bungee.api.chat.TextComponent;
-
 public interface DeathMessageTagListener {
     /**
      * Formats a death message tag using the given info.
-     * 
+     *
      * @param tag The tag itself
      * @param died The player that died
      * @param cause The last damage cause for the player

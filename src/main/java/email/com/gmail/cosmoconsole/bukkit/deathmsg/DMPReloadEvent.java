@@ -9,17 +9,15 @@ import org.bukkit.event.HandlerList;
  */
 public class DMPReloadEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    
-    public DMPReloadEvent() {
+
+    public DMPReloadEvent() {}
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
 }

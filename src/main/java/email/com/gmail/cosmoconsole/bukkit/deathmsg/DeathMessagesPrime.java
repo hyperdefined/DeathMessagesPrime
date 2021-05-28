@@ -1,50 +1,67 @@
 package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 
-import org.bukkit.plugin.java.*;
-import org.bukkit.configuration.file.*;
-import org.bukkit.*;
-import org.bukkit.plugin.*;
-import org.bukkit.event.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.configuration.*;
-import java.io.*;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
-import org.bukkit.command.*;
-import org.bukkit.entity.*;
 
 /*
- * 
+ *
  * Disclaimers to anyone reading this source code:
- * 
+ *
  * 1. This code is ugly. It started development in 2014 and has never gone
  *    under a major code clean-up or refactoring process.
  *    Don't be under the false assumption that I think this is clean
  *    or well laid out code.
- *    
+ *
  * 2. Anyone who tries to maintain this plugin should first and foremost
  *    think of a plan to clean up, refactor or perhaps even completely
  *    rewrite this code, in whole or in part, particularly the
  *    DeathListener class which is much of the core of this plugin's
  *    functionality.
- *    
+ *
  *    ~~ Refactoring the code should be the UTMOST priority of anyone
  *       willing to maintain this plugin long-term.
- * 
+ *
  * 3. Despite my best efforts, the plugin suffers from extensive feature
  *    creep, which will greatly complicate any such plans to refactor
  *    this code. Notwithstanding that, it should remain the top priority
  *    to anyone willing to maintain this code.
- * 
+ *
  * This source code was released publicly on 2020-08-31. If any subsequent
  * modifications have been made to it by its original developer, those
  * changes have last been made on 2020-08-31.
- * 
+ *
  */
 
-public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
-{
+public class DeathMessagesPrime extends JavaPlugin implements TabCompleter {
+    static DeathMessagesPrime instance;
+    static HashMap<String, DeathMessageTagListener> taglisteners;
+    static HashMap<String, DeathMessageTagListener> taglistenerprefixes;
+    static boolean petMessages;
+    private static int mc_ver = 0;
+    private static int mc_rev = 0;
+
+    static {
+        DeathMessagesPrime.instance = null;
+        petMessages = false;
+    }
+
     public final int CONFIG_VERSION = 55;
-    
     boolean debug;
     FileConfiguration config;
     /* World names of worlds in which PvP messages are hidden */
@@ -60,17 +77,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
     ArrayList<UUID> dmpban;
     HashMap<UUID, Long> tempban;
     HashMap<UUID, Boolean> showdeath;
-    static DeathMessagesPrime instance;
-    static HashMap<String, DeathMessageTagListener> taglisteners;
-    static HashMap<String, DeathMessageTagListener> taglistenerprefixes;
-    static boolean petMessages;
     private DeathListener dl;
-    
-    static {
-        DeathMessagesPrime.instance = null;
-        petMessages = false;
-    }
-    
     public DeathMessagesPrime() {
         this.debug = true;
         this.config = null;
@@ -80,9 +87,6 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
         this.pnl = null;
     }
 
-    private static int mc_ver = 0;
-    private static int mc_rev = 0;
-    
     public static boolean mcVer(int comp) {
         return mc_ver >= comp;
     }
@@ -90,7 +94,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
     public static boolean mcVerRev(int comp, int rev) {
         return mc_ver > comp || (mc_ver == comp && mc_rev >= rev);
     }
-    
+
     public void onEnable() {
         (DeathMessagesPrime.instance = this).loadConfig();
         taglisteners = new HashMap<>();
@@ -106,9 +110,17 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
             // once upon a time, this was suggested as a workaround for some plugins that use
             // MONITOR as the priority for catching player death events. using MONITOR for DMP
             // will however lead to undefined behavior, which is why it cannot be recommended
-            this.getLogger().warning("You are using MONITOR as the DMP priority; this is not supported. Please switch to another priority.");
+            this.getLogger()
+                    .warning(
+                            "You are using MONITOR as the DMP priority; this is not supported. Please switch to another priority.");
         }
-        String ver = Bukkit.getServer().getVersion().split("\\(MC:")[1].split("\\)")[0].trim().split(" ")[0].trim();
+        String ver = Bukkit.getServer()
+                .getVersion()
+                .split("\\(MC:")[1]
+                .split("\\)")[0]
+                .trim()
+                .split(" ")[0]
+                .trim();
         this.getLogger().info("Minecraft version is " + ver);
         getCommand("dmsg").setTabCompleter(this);
         try {
@@ -131,16 +143,17 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
             // 1.14 = 1_014
             // 1.15 = 1_015
         } catch (Exception ex) {
-            this.getLogger().warning("Cannot detect Minecraft version from string - " +
-                                     "some features will not work properly. " + 
-                                     "Please contact the plugin author if you are on " +
-                                     "standard CraftBukkit or Spigot. This plugin " + 
-                                     "expects getVersion() to return a string " + 
-                                     "containing '(MC: 1.15)' or similar. The version " + 
-                                     "DMP tried to parse was '" + ver + "'");
+            this.getLogger()
+                    .warning("Cannot detect Minecraft version from string - " + "some features will not work properly. "
+                            + "Please contact the plugin author if you are on "
+                            + "standard CraftBukkit or Spigot. This plugin "
+                            + "expects getVersion() to return a string "
+                            + "containing '(MC: 1.15)' or similar. The version "
+                            + "DMP tried to parse was '"
+                            + ver + "'");
         }
     }
-    
+
     private void loadConfig() {
         this.config = this.getConfig();
         this.dmpban = new ArrayList<>();
@@ -152,32 +165,30 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
                 throw new Exception();
             }
             if (this.config.getInt("config-version") < CONFIG_VERSION) {
-                if (!ConfigUpdater.updateConfig())
-                    throw new ConfigTooOldException();
-                else
-                    this.config.save(new File(this.getDataFolder(), "config.yml"));
+                if (!ConfigUpdater.updateConfig()) throw new ConfigTooOldException();
+                else this.config.save(new File(this.getDataFolder(), "config.yml"));
             }
-        }
-        catch (FileNotFoundException e6) {
+        } catch (FileNotFoundException e6) {
             this.getLogger().info("Extracting default config.");
             this.saveResource("config.yml", true);
             try {
                 this.config.load(new File(this.getDataFolder(), "config.yml"));
-            }
-            catch (IOException | InvalidConfigurationException ex3) {
+            } catch (IOException | InvalidConfigurationException ex3) {
                 ex3.printStackTrace();
                 this.getLogger().severe("The JAR config is broken, disabling");
                 this.getServer().getPluginManager().disablePlugin(this);
                 this.setEnabled(false);
             }
-        }
-        catch (ConfigTooOldException e3) {
-            this.getLogger().warning("!!! WARNING !!! Your configuration is old. There may be new features or some config behavior might have changed, so it is advised to regenerate your config when possible!");
-        }
-        catch (Exception e4) {
+        } catch (ConfigTooOldException e3) {
+            this.getLogger()
+                    .warning(
+                            "!!! WARNING !!! Your configuration is old. There may be new features or some config behavior might have changed, so it is advised to regenerate your config when possible!");
+        } catch (Exception e4) {
             e4.printStackTrace();
             this.getLogger().severe("Configuration is invalid. Re-extracting it.");
-            final boolean success = !new File(this.getDataFolder(), "config.yml").isFile() || new File(this.getDataFolder(), "config.yml").renameTo(new File(this.getDataFolder(), "config.yml.broken" + new Date().getTime()));
+            final boolean success = !new File(this.getDataFolder(), "config.yml").isFile()
+                    || new File(this.getDataFolder(), "config.yml")
+                            .renameTo(new File(this.getDataFolder(), "config.yml.broken" + new Date().getTime()));
             if (!success) {
                 this.getLogger().severe("Cannot rename the broken config, disabling");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -186,8 +197,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
             this.saveResource("config.yml", true);
             try {
                 this.config.load(new File(this.getDataFolder(), "config.yml"));
-            }
-            catch (IOException | InvalidConfigurationException ex4) {
+            } catch (IOException | InvalidConfigurationException ex4) {
                 ex4.printStackTrace();
                 this.getLogger().severe("The JAR config is broken, disabling");
                 this.getServer().getPluginManager().disablePlugin(this);
@@ -214,7 +224,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
         petMessages = this.config.getBoolean("show-named-pet-death-messages", false);
         List<String> banned = this.config.getStringList("player-blacklist");
         if (banned != null) {
-            for (String s: banned) {
+            for (String s : banned) {
                 try {
                     dmpban.add(UUID.fromString(s));
                 } catch (Exception ex) {
@@ -226,7 +236,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
         this.pvpradius = new HashMap<>();
         try {
             ConfigurationSection cs = this.config.getConfigurationSection("worlds-death-message-radius");
-            for (String key: cs.getKeys(false)) {
+            for (String key : cs.getKeys(false)) {
                 double d = cs.getDouble(key);
                 radius.put(key, d * d);
             }
@@ -236,7 +246,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
         }
         try {
             ConfigurationSection cs = this.config.getConfigurationSection("worlds-pvp-death-message-radius");
-            for (String key: cs.getKeys(false)) {
+            for (String key : cs.getKeys(false)) {
                 double d = cs.getDouble(key);
                 pvpradius.put(key, d * d);
             }
@@ -245,25 +255,25 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
             ex.printStackTrace();
         }
     }
-    
+
     /**
      * Gets the death message for a specific PlayerDeathEvent. This
      * death message may either be the default death message given
      * by Minecraft (or passed from below) or the message prepared
      * by DeathMessagesPrime, depending on whether the message has
      * been prepared by the point this function is called.
-     * 
+     *
      * Because of this, if you want the DeathMessagesPrime death
      * message, this function should be called as late as possible
      * - ideally on the MONITOR event priority.
-     * 
+     *
      * Note that this function is only supported to be called from
      * within any listener of the event this function is given.
      * If the event is stored for later use and this is called
      * much later, this function can give wrong results.
-     * 
+     *
      * @param event The PlayerDeathEvent to get the message for.
-     * 
+     *
      * @return Either the Minecraft death message or the
      *         DeathMessagesPrime death message, if the latter has
      *         been prepared.
@@ -271,27 +281,27 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
     public String getDeathMessage(PlayerDeathEvent event) {
         return dl.getDeathMessage(event);
     }
-    
+
     /**
      * Returns the event priority that DMP has been configured to use
      * within the configuration.
-     * 
+     *
      * @return The event priority; any event priority is possible, but
      *         MONITOR should be considered unsupported.
      */
     public EventPriority getEventPriority() {
-        return dl.pr;        
+        return dl.pr;
     }
-    
+
     /**
      * Registers a tag (like %player% and %world%) for use in death messages.
-     * 
+     *
      * @param plugin The plugin that is registering a tag.
-     * @param tag A unique (for this and all other plugins) tag without the % signs, such as test for %test%. The tag must be unique for all plugins that may register tags. 
-     * 
+     * @param tag A unique (for this and all other plugins) tag without the % signs, such as test for %test%. The tag must be unique for all plugins that may register tags.
+     *
      * If it overlaps with existing tags in DeathMessagesPrime itself, the register will be successful, but the listener will never be called.
-     * Tag listeners should return null or an empty TextComponent on failure or "unknown tag". 
-     * 
+     * Tag listeners should return null or an empty TextComponent on failure or "unknown tag".
+     *
      * Tags are case-sensitive. If possible, tags should only contain alphanumeric characters and underscores.
      * @param listener A class implementing the DeathMessageTagListener interface.
      */
@@ -301,16 +311,16 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
         }
         taglisteners.put(tag, listener);
     }
-    
+
     /**
      * Registers a tag prefix for use in death messages.
-     * 
+     *
      * @param plugin The plugin that is registering a tag.
      * @param prefix A unique prefix for tags. It will be automatically followed by an underscore. For example, if the prefix is test, the plugin will get formatTag calls for %test_*%, with * being anything.
-     * 
+     *
      * If it overlaps with existing tags in DeathMessagesPrime itself, the register will be successful, but the listener will never be called.
-     * Tag listeners should return null on failure or "unknown tag". 
-     * 
+     * Tag listeners should return null on failure or "unknown tag".
+     *
      * Tags are case-sensitive. If possible, tags should only contain alphanumeric characters and underscores.
      * @param listener A class implementing the DeathMessageTagListener interface.
      */
@@ -320,9 +330,11 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
         }
         taglistenerprefixes.put(prefix + "_", listener);
     }
-    
+
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
-        final String COMMAND_NO_PERMISSION_MESSAGE = ChatColor.RED + ChatColor.translateAlternateColorCodes('&', config.getString("no-permission", "You have no permission to run this command."));
+        final String COMMAND_NO_PERMISSION_MESSAGE = ChatColor.RED
+                + ChatColor.translateAlternateColorCodes(
+                        '&', config.getString("no-permission", "You have no permission to run this command."));
         final boolean include_prefix = config.getBoolean("dmp-prefix-in-command-messages", true);
         if (cmd.getName().equalsIgnoreCase("dmsg")) {
             if (args.length == 0) {
@@ -330,7 +342,8 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
                     sender.sendMessage(COMMAND_NO_PERMISSION_MESSAGE);
                     return true;
                 }
-                sender.sendMessage("§aDeathMessagesPrime v" + this.getDescription().getVersion() + " by CosmoConsole");
+                sender.sendMessage(
+                        "§aDeathMessagesPrime v" + this.getDescription().getVersion() + " by CosmoConsole");
                 if (!(sender instanceof Player) || sender.hasPermission("deathmessagesprime.reload")) {
                     sender.sendMessage("§6/dmsg reload to reload");
                 }
@@ -347,7 +360,9 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
                 this.loadConfig();
                 DMPReloadEvent pree = new DMPReloadEvent();
                 this.getServer().getPluginManager().callEvent(pree);
-                sender.sendMessage((include_prefix ? "§a[DMP] §6" : "") + ChatColor.translateAlternateColorCodes('&', config.getString("reload-complete", "Reload complete!")));
+                sender.sendMessage((include_prefix ? "§a[DMP] §6" : "")
+                        + ChatColor.translateAlternateColorCodes(
+                                '&', config.getString("reload-complete", "Reload complete!")));
                 return true;
             }
             if (args[0].equalsIgnoreCase("uuid")) {
@@ -362,15 +377,20 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
                 String pn = args[1];
                 Player pl = Bukkit.getPlayer(pn);
                 if (pl == null) {
-                    sender.sendMessage((include_prefix ? "§a[DMP] §c" : "") + ChatColor.translateAlternateColorCodes('&', config.getString("cannot-find-online-player", "Cannot find online player")));
+                    sender.sendMessage((include_prefix ? "§a[DMP] §c" : "")
+                            + ChatColor.translateAlternateColorCodes(
+                                    '&', config.getString("cannot-find-online-player", "Cannot find online player")));
                     return true;
                 }
-                sender.sendMessage((include_prefix ? "§a[DMP] §a" : "") + pl.getUniqueId().toString());
+                sender.sendMessage(
+                        (include_prefix ? "§a[DMP] §a" : "") + pl.getUniqueId().toString());
                 return true;
             }
         } else if (cmd.getName().equalsIgnoreCase("toggledeathmsg")) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(ChatColor.RED + ChatColor.translateAlternateColorCodes('&', config.getString("players-only-command", "Only players can run this command.")));
+                sender.sendMessage(ChatColor.RED
+                        + ChatColor.translateAlternateColorCodes(
+                                '&', config.getString("players-only-command", "Only players can run this command.")));
                 return true;
             }
             if (!sender.hasPermission("deathmessagesprime.toggle")) {
@@ -379,20 +399,27 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
             }
             UUID u = ((Player) sender).getUniqueId();
             boolean old_value = false;
-            if (showdeath.containsKey(u))
-                old_value = showdeath.get(u);
+            if (showdeath.containsKey(u)) old_value = showdeath.get(u);
             if (old_value) {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("death-messages-shown", "§a[DMP] §aDeath messages from other players will now be SHOWN")));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes(
+                        '&',
+                        config.getString(
+                                "death-messages-shown",
+                                "§a[DMP] §aDeath messages from other players will now be SHOWN")));
                 showdeath.put(u, false);
             } else {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("death-messages-hidden", "§a[DMP] §aDeath messages from other players will now be HIDDEN")));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes(
+                        '&',
+                        config.getString(
+                                "death-messages-hidden",
+                                "§a[DMP] §aDeath messages from other players will now be HIDDEN")));
                 showdeath.put(u, true);
             }
             return true;
         }
         return false;
     }
-    
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equals("dmsg")) {
@@ -402,7 +429,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
                 if (sender instanceof Player && !sender.hasPermission("deathmessagesprime.reload")) {
                     return null;
                 }
-                
+
                 suggestions.add("reload");
                 suggestions.add("uuid");
                 return suggestions;
@@ -412,7 +439,7 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
                 if (sender instanceof Player && !sender.hasPermission("deathmessagesprime.reload")) {
                     return null;
                 }
-                for (Player p: getServer().getOnlinePlayers()) {
+                for (Player p : getServer().getOnlinePlayers()) {
                     if (p.getName().toLowerCase().startsWith(args[1].toLowerCase())) {
                         suggestions.add(p.getName());
                     }
@@ -424,4 +451,3 @@ public class DeathMessagesPrime extends JavaPlugin implements TabCompleter
         return null;
     }
 }
- 

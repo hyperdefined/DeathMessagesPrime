@@ -16,12 +16,16 @@ public class DeathPreDMPEvent extends Event {
     private final Entity damager;
     private final Player player;
     private final EntityDamageEvent.DamageCause cause;
-    
+
     public DeathPreDMPEvent(Player player, Entity damager, EntityDamageEvent.DamageCause cause, double hp) {
         this.player = player;
         this.damager = damager;
         this.cause = cause;
         this.hp = hp;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -31,7 +35,7 @@ public class DeathPreDMPEvent extends Event {
 
     /**
      * Returns the cause of the damage that proved to be fatal to the player.
-     * 
+     *
      * @return The cause of the fatal damage.
      */
     public EntityDamageEvent.DamageCause getCause() {
@@ -40,7 +44,7 @@ public class DeathPreDMPEvent extends Event {
 
     /**
      * Returns the entity that caused the fatal damage.
-     * 
+     *
      * @return The damager entity, or null if none.
      */
     public Entity getDamager() {
@@ -49,27 +53,21 @@ public class DeathPreDMPEvent extends Event {
 
     /**
      * Returns the amount of damage dealt that proved to be fatal to the player.
-     * 
+     *
      * This value can be 0 if the damage isn't known (for various reasons)
-     * 
+     *
      * @return The amount of damage as a double in HP (2 HP = 1 heart)
      */
     public double getDamage() {
         return this.hp;
     }
 
-
     /**
      * Returns the player that died.
-     * 
+     *
      * @return The player.
      */
     public Player getPlayer() {
         return this.player;
     }
-    
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
 }

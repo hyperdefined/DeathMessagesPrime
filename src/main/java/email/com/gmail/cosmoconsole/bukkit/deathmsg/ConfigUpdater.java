@@ -1,13 +1,13 @@
 package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 
 public class ConfigUpdater {
-    
+
     public static boolean updateConfig() {
         return false;
     }
-        /*
+    /*
          // does not work, messes up formatting
-         
+
         int version = config.getInt("config-version");
         do {
             if (version < 54) return false;
@@ -20,7 +20,7 @@ public class ConfigUpdater {
         config.set("config-version", version + 1);
         return true;
     }
-    
+
     private static List<String> makeList(String x) {
         return Arrays.asList(x);
     }
@@ -32,5 +32,5 @@ public class ConfigUpdater {
         config.set("death-messages.namedmob.PiglinBruteCustom", makeList("%plrtag% was slain by %killer% using [%weapon%&f]"));
         config.set("mob-names.PiglinBrute", "Piglin Brute");
     }*/
-    
+
 }

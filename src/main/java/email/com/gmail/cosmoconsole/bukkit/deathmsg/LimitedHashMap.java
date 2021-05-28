@@ -3,10 +3,10 @@ package email.com.gmail.cosmoconsole.bukkit.deathmsg;
 import java.util.HashMap;
 
 // a HashMap the size of which is limited
-public class LimitedHashMap<K,V> extends HashMap<K,V> {
+public class LimitedHashMap<K, V> extends HashMap<K, V> {
     private static final long serialVersionUID = 7515019755579498427L;
     private final LimitList<K> ls;
-    
+
     public LimitedHashMap(int capacity) {
         super(capacity + 1);
         ls = new LimitList<>(capacity);
